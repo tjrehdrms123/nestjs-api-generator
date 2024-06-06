@@ -1,0 +1,42 @@
+{
+  "name": "nestjs-api-generator",
+  "version": "1.0.6",
+  "description": "nestjs-api-generator creates an template folder by duplicating the target folder",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "homepage": "https://github.com/tjrehdrms123/nestjs-api-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjrehdrms123/nestjs-api-generator"
+  },
+  "keywords": [
+    "nestjs",
+    "nestjs-api-generator",
+    "nestjs-folder-generator"
+  ],
+  "bin": {
+    "api": "dist/index.js"
+  },
+  "scripts": {
+    "bump": "npm version patch",
+    "package": "npm run test && npm run build && npm run bump && npm publish",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "author": "Seog Donggeun",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.11",
+    "fs": "^0.0.1-security",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "path": "^0.12.7",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  }
+}
