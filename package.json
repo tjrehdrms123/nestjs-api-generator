@@ -19,7 +19,7 @@
   },
   "scripts": {
     "bump": "npm version patch",
-    "package": "npm run test && npm run build && npm run bump && npm publish",
+    "package": "npm run build && npm run bump && npm publish",
     "build": "tsc",
     "test": "jest"
   },

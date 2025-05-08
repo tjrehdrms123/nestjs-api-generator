@@ -25,8 +25,6 @@ api -s <socure foler name> -t <target folder name>
 # api -s template -t posts
 ```
 
-> 🔥 Be sure to create the template folder under src. 🔥
-
 ## Example
 
 - [Template Folder for Nestjs](https://github.com/tjrehdrms123/nestjs-api-generator/tree/main/src/template)
