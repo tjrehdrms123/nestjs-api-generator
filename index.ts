@@ -79,6 +79,6 @@ if (!templateName || !newModuleName) {
   process.exit(1);
 }
 
-const templatePath = path.join(process.cwd(), 'src', templateName);
+const templatePath = path.join(process.cwd(), templateName);
 
 copyTemplate(templatePath, templateName, newModuleName);
