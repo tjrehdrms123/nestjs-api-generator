@@ -64,7 +64,7 @@ function copyTemplate(templatePath: string, templateName: string, newModuleName:
 program
   .name('nestjs-api-generator')
   .description('CLI to generate a new module from a template')
-  .version('1.0.0')
+  .version('1.0.1')
   .requiredOption('-s, --source <templateName>', '템플릿 이름')
   .requiredOption('-t, --target <newModuleName>', '새 모듈 이름');
 
