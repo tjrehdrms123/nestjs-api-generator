@@ -6,25 +6,40 @@ import chalk from 'chalk';
 
 const program = new Command();
 
+function toKebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+}
+
+function toPascalCase(str: string): string {
+  return str
+    .replace(/(^\w|-\w)/g, clear => clear.replace('-', '').toUpperCase());
+}
+
 function mkdirRecursive(dirPath: string): void {
-  if (fs.existsSync(dirPath)) {
-    return;
-  }
+  if (fs.existsSync(dirPath)) return;
   const parentDir = path.dirname(dirPath);
   mkdirRecursive(parentDir);
   fs.mkdirSync(dirPath);
 }
 
-function copyTemplate(templatePath: string, templateName: string, newModuleName: string): void {
+function copyTemplate(
+  templatePath: string,
+  templateName: string,
+  folderName: string,
+  className: string
+): void {
   if (!fs.existsSync(templatePath)) {
     console.error(chalk.red(`Error: Template path "${templatePath}" does not exist.`));
     return;
   }
 
-  const newModulePath = path.join(path.dirname(templatePath), newModuleName);
+  const newModulePath = path.join(path.dirname(templatePath), folderName);
 
   if (fs.existsSync(newModulePath)) {
-    console.error(chalk.red(`Error: ${newModuleName} already exists.`));
+    console.error(chalk.red(`Error: ${folderName} already exists.`));
     return;
   }
 
@@ -35,30 +50,29 @@ function copyTemplate(templatePath: string, templateName: string, newModuleName:
 
     for (let entry of entries) {
       const srcPath = path.join(src, entry.name);
-      const destPath = path.join(dest, entry.name.replace(new RegExp(templateName, 'gi'), match => {
-        return match === templateName ? newModuleName : capitalize(newModuleName);
-      }));
+
+      const destFileName = entry.name.replace(
+        new RegExp(templateName, 'gi'),
+        match => (match === templateName ? folderName : className)
+      );
+      const destPath = path.join(dest, destFileName);
 
       if (entry.isDirectory()) {
         mkdirRecursive(destPath);
         copyRecursive(srcPath, destPath);
       } else {
         let content = fs.readFileSync(srcPath, 'utf8');
-        content = content.replace(new RegExp(templateName, 'gi'), match => {
-          return match === templateName ? newModuleName : capitalize(newModuleName);
-        });
+        content = content.replace(new RegExp(templateName, 'gi'), match =>
+          match === templateName ? folderName : className
+        );
         fs.writeFileSync(destPath, content, 'utf8');
       }
     }
   }
 
-  function capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
   copyRecursive(templatePath, newModulePath);
 
-  console.log(chalk.green(`Module ${newModuleName} created successfully.`));
+  console.log(chalk.green(`✅ Module "${folderName}" created successfully.`));
 }
 
 program
@@ -66,19 +80,26 @@ program
   .description('CLI to generate a new module from a template')
   .version('1.0.1')
   .requiredOption('-s, --source <templateName>', '템플릿 이름')
-  .requiredOption('-t, --target <newModuleName>', '새 모듈 이름');
+  .requiredOption('-t, --target <newModuleName>', '새 모듈 이름')
+  .option('--style <style>', '이름 변환 스타일 (kebab, pascal, raw)', 'raw');
 
 program.parse(process.argv);
 
 const options = program.opts();
 const templateName = options.source;
-const newModuleName = options.target;
+const targetInput = options.target;
+const style = options.style || 'raw';
 
-if (!templateName || !newModuleName) {
-  console.error(chalk.red('Error: 템플릿 이름과 새 모듈 이름을 모두 제공해야 합니다.'));
-  process.exit(1);
+let folderName = targetInput;
+let className = targetInput;
+
+if (style === 'kebab') {
+  folderName = toKebabCase(targetInput);
+  className = toPascalCase(targetInput);
+} else if (style === 'pascal') {
+  folderName = toPascalCase(targetInput);
+  className = toPascalCase(targetInput);
 }
 
 const templatePath = path.join(process.cwd(), templateName);
-
-copyTemplate(templatePath, templateName, newModuleName);
+copyTemplate(templatePath, templateName, folderName, className);
