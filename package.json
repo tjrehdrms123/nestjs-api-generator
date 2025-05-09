@@ -1,6 +1,6 @@
 {
   "name": "nestjs-api-generator",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "nestjs-api-generator creates an template folder by duplicating the target folder",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
