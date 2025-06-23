@@ -25,6 +25,22 @@ function mkdirRecursive(dirPath: string): void {
   fs.mkdirSync(dirPath);
 }
 
+function replaceAllCases(content: string, original: string, replacement: string): string {
+  const pascalOriginal = toPascalCase(original);
+  const pascalReplacement = toPascalCase(replacement);
+
+  const kebabOriginal = toKebabCase(original);
+  const kebabReplacement = toKebabCase(replacement);
+
+  // 예: Template → ClientCompanyRecordHistory
+  content = content.replace(new RegExp(pascalOriginal, 'g'), pascalReplacement);
+
+  // 예: template → client-company-record-history
+  content = content.replace(new RegExp(kebabOriginal, 'g'), kebabReplacement);
+
+  return content;
+}
+  
 function copyTemplate(
   templatePath: string,
   templateName: string,
@@ -62,9 +78,7 @@ function copyTemplate(
         copyRecursive(srcPath, destPath);
       } else {
         let content = fs.readFileSync(srcPath, 'utf8');
-        content = content.replace(new RegExp(templateName, 'gi'), match =>
-          match === templateName ? folderName : className
-        );
+        content = replaceAllCases(content, templateName, folderName);
         fs.writeFileSync(destPath, content, 'utf8');
       }
     }
