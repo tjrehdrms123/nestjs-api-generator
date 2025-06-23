@@ -18,6 +18,11 @@ function toPascalCase(str: string): string {
     .replace(/(^\w|-\w)/g, clear => clear.replace('-', '').toUpperCase());
 }
 
+function toCamelCase(str: string): string {
+  const pascal = toPascalCase(str);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
 function mkdirRecursive(dirPath: string): void {
   if (fs.existsSync(dirPath)) return;
   const parentDir = path.dirname(dirPath);
@@ -26,21 +31,37 @@ function mkdirRecursive(dirPath: string): void {
 }
 
 function replaceAllCases(content: string, original: string, replacement: string): string {
-  const pascalOriginal = toPascalCase(original);
-  const pascalReplacement = toPascalCase(replacement);
+  const patterns = [
+    {
+      // PascalCase → PascalCase
+      from: toPascalCase(original),
+      to: toPascalCase(replacement),
+    },
+    {
+      // kebab-case → kebab-case
+      from: toKebabCase(original),
+      to: toKebabCase(replacement),
+    },
+    {
+      // camelCase → camelCase
+      from: toCamelCase(original),
+      to: toCamelCase(replacement),
+    },
+    {
+      // raw 그대로 (소문자)
+      from: original.toLowerCase(),
+      to: replacement.toLowerCase(),
+    }
+  ];
 
-  const kebabOriginal = toKebabCase(original);
-  const kebabReplacement = toKebabCase(replacement);
-
-  // 예: Template → ClientCompanyRecordHistory
-  content = content.replace(new RegExp(pascalOriginal, 'g'), pascalReplacement);
-
-  // 예: template → client-company-record-history
-  content = content.replace(new RegExp(kebabOriginal, 'g'), kebabReplacement);
+  for (const { from, to } of patterns) {
+    const regex = new RegExp(from, 'g');
+    content = content.replace(regex, to);
+  }
 
   return content;
 }
-  
+
 function copyTemplate(
   templatePath: string,
   templateName: string,
@@ -78,7 +99,7 @@ function copyTemplate(
         copyRecursive(srcPath, destPath);
       } else {
         let content = fs.readFileSync(srcPath, 'utf8');
-        content = replaceAllCases(content, templateName, folderName);
+        content = replaceAllCases(content, templateName, className);
         fs.writeFileSync(destPath, content, 'utf8');
       }
     }
@@ -92,7 +113,7 @@ function copyTemplate(
 program
   .name('nestjs-api-generator')
   .description('CLI to generate a new module from a template')
-  .version('1.0.1')
+  .version('2.0.1')
   .requiredOption('-s, --source <templateName>', '템플릿 이름')
   .requiredOption('-t, --target <newModuleName>', '새 모듈 이름')
   .option('--style <style>', '이름 변환 스타일 (kebab, pascal, raw)', 'raw');
